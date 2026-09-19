@@ -14,7 +14,43 @@ interface MapboxDrawerProps {
 }
 
 const OPEN_MAP_STYLES: Record<string, string | maplibregl.StyleSpecification> = {
-  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  dark: {
+    version: 8,
+    sources: {
+      'esri-dark-base': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      },
+      'esri-dark-labels': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      },
+    },
+    layers: [
+      {
+        id: 'esri-dark-base-tiles',
+        type: 'raster',
+        source: 'esri-dark-base',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+      {
+        id: 'esri-dark-labels-tiles',
+        type: 'raster',
+        source: 'esri-dark-labels',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+    ],
+  },
   satellite: {
     version: 8,
     sources: {
@@ -26,6 +62,14 @@ const OPEN_MAP_STYLES: Record<string, string | maplibregl.StyleSpecification> = 
         tileSize: 256,
         attribution: 'Tiles &copy; Esri World Imagery',
       },
+      'esri-labels': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri World Boundaries & Places',
+      },
     },
     layers: [
       {
@@ -35,9 +79,37 @@ const OPEN_MAP_STYLES: Record<string, string | maplibregl.StyleSpecification> = 
         minzoom: 0,
         maxzoom: 20,
       },
+      {
+        id: 'esri-labels-tiles',
+        type: 'raster',
+        source: 'esri-labels',
+        minzoom: 0,
+        maxzoom: 20,
+      },
     ],
   },
-  outdoors: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  outdoors: {
+    version: 8,
+    sources: {
+      'esri-topo': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri World Topographic Map',
+      },
+    },
+    layers: [
+      {
+        id: 'esri-topo-tiles',
+        type: 'raster',
+        source: 'esri-topo',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+    ],
+  },
 };
 
 const MAPBOX_VECTOR_STYLES: Record<string, string> = {
