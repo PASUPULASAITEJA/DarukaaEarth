@@ -218,11 +218,20 @@ FastAPI provides interactive OpenAPI/Swagger documentation at `/api/v1/docs` and
 
 ## 🚀 Local Development & Setup
 
+### 🌐 Live Production Demo
+
+- **Live Web Application**: [https://darukaa-earth.netlify.app](https://darukaa-earth.netlify.app)
+- **Pre-Seeded Demo Admin Credentials**:
+  - **Email**: `admin@darukaa.earth`
+  - **Password**: `AdminPass123!`
+
+---
+
 ### Option 1: Quickstart with Docker Compose (Recommended)
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/PASUPULASAITEJA/MindGuard-AI.git
+git clone https://github.com/PASUPULASAITEJA/DarukaaEarth.git
 cd DarukaaEarth
 
 # 2. Copy environment file
