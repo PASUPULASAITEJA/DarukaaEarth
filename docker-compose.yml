@@ -1,0 +1,65 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: darukaa_postgis
+    environment:
+      POSTGRES_DB: darukaa_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d darukaa_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - darukaa_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: darukaa_backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/darukaa_db
+      JWT_SECRET_KEY: darukaa-earth-super-secret-key-min-32-chars-long
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 1440
+      FRONTEND_URL: http://localhost:5173
+      PROJECT_NAME: Darukaa.Earth
+      ENVIRONMENT: production
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - darukaa_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: darukaa_frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api/v1
+      VITE_MAPBOX_ACCESS_TOKEN: ${VITE_MAPBOX_ACCESS_TOKEN:-pk.eyJ1IjoiZGFydWthYSIsImEiOiJjbHNnd2R2eGIwMXQ0MmxzNW5zMGQza3F4In0.sample_token_replace_me}
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - darukaa_net
+
+volumes:
+  postgis_data:
+
+networks:
+  darukaa_net:
+    driver: bridge
