@@ -1,10 +1,10 @@
 import logging
 import math
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
+
 import httpx
 from geoalchemy2.shape import to_shape
-from shapely.geometry import mapping, shape
 
 from app.models.site import Site
 from app.schemas.biodiversity import (
@@ -49,7 +49,7 @@ def _get_wkt_or_bbox(site: Site) -> Dict[str, Any]:
             # Simplify geometry if too many coordinates (GBIF limit ~1000 pts)
             if hasattr(geom_shapely, "exterior") and len(geom_shapely.exterior.coords) > 200:
                 geom_shapely = geom_shapely.simplify(0.01, preserve_topology=True)
-            
+
             wkt_str = geom_shapely.wkt
             if "POLYGON" in wkt_str:
                 params["geometry"] = wkt_str
@@ -64,8 +64,12 @@ def _get_wkt_or_bbox(site: Site) -> Dict[str, Any]:
         and site.bbox_min_lon is not None
         and site.bbox_max_lon is not None
     ):
-        params["decimalLatitude"] = f"{min(site.bbox_min_lat, site.bbox_max_lat)},{max(site.bbox_min_lat, site.bbox_max_lat)}"
-        params["decimalLongitude"] = f"{min(site.bbox_min_lon, site.bbox_max_lon)},{max(site.bbox_min_lon, site.bbox_max_lon)}"
+        params["decimalLatitude"] = (
+            f"{min(site.bbox_min_lat, site.bbox_max_lat)},{max(site.bbox_min_lat, site.bbox_max_lat)}"
+        )
+        params["decimalLongitude"] = (
+            f"{min(site.bbox_min_lon, site.bbox_max_lon)},{max(site.bbox_min_lon, site.bbox_max_lon)}"
+        )
     elif site.centroid_latitude and site.centroid_longitude:
         # Buffer around centroid ~ 0.05 degrees (~5.5km)
         lat = site.centroid_latitude
@@ -162,7 +166,9 @@ async def fetch_site_gbif_biodiversity(site: Site) -> SiteBiodiversityResponse:
 
                 seen_species = set()
                 for item in results:
-                    scientific_name = item.get("species") or item.get("scientificName") or "Unknown species"
+                    scientific_name = (
+                        item.get("species") or item.get("scientificName") or "Unknown species"
+                    )
                     key = item.get("speciesKey") or scientific_name
 
                     # Occurrence count tracking
@@ -218,7 +224,9 @@ async def fetch_site_gbif_biodiversity(site: Site) -> SiteBiodiversityResponse:
                                 license=license_str,
                                 latitude=item.get("decimalLatitude"),
                                 longitude=item.get("decimalLongitude"),
-                                gbif_url=f"https://www.gbif.org/occurrence/{gbif_key}" if gbif_key else None,
+                                gbif_url=f"https://www.gbif.org/occurrence/{gbif_key}"
+                                if gbif_key
+                                else None,
                             )
                         )
     except Exception as e:

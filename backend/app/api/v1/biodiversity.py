@@ -1,6 +1,7 @@
 import logging
-from typing import Any, Optional
+from typing import Any
 from uuid import UUID
+
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
@@ -12,7 +13,6 @@ from app.models.user import User
 from app.schemas.biodiversity import GBIFSpeciesRecord, SiteBiodiversityResponse
 from app.services.gbif_service import (
     GBIF_SPECIES_URL,
-    IUCN_LABEL_MAP,
     fetch_site_gbif_biodiversity,
 )
 
@@ -62,7 +62,11 @@ async def search_gbif_species(
         async with httpx.AsyncClient(timeout=8.0) as client:
             res = await client.get(
                 f"{GBIF_SPECIES_URL}/search",
-                params={"q": q, "limit": limit, "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"},
+                params={
+                    "q": q,
+                    "limit": limit,
+                    "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+                },
             )
             if res.status_code != 200:
                 return []

@@ -10,4 +10,3 @@ api_router.include_router(sites.router, prefix="/sites", tags=["Sites & Geospati
 api_router.include_router(analytics.router, tags=["Analytics"])
 api_router.include_router(biodiversity.router, prefix="/biodiversity", tags=["Biodiversity & GBIF"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
-
