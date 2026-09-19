@@ -152,6 +152,18 @@ export const LoginPage: React.FC = () => {
             Create an account
           </Link>
         </div>
+
+        <div className="mt-6 pt-4 border-t border-[#1c353d]/40 flex items-center justify-center">
+          <a
+            href="https://github.com/PASUPULASAITEJA/DarukaaEarth"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-mono hover:text-emerald-400 transition-colors"
+          >
+            <span>Engineered by</span>
+            <strong className="text-emerald-400 font-semibold">Pasupula Sai Teja</strong>
+          </a>
+        </div>
       </div>
     </div>
   );
