@@ -14,9 +14,45 @@ interface MapboxViewerProps {
   zoomToBounds?: boolean;
 }
 
-// Highly reliable open styles with world place names & zero API key requirement
+// Highly reliable open styles with world place names & zero API key requirement (Esri Enterprise Public CDN)
 const OPEN_MAP_STYLES: Record<string, string | maplibregl.StyleSpecification> = {
-  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  dark: {
+    version: 8,
+    sources: {
+      'esri-dark-base': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      },
+      'esri-dark-labels': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ',
+      },
+    },
+    layers: [
+      {
+        id: 'esri-dark-base-tiles',
+        type: 'raster',
+        source: 'esri-dark-base',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+      {
+        id: 'esri-dark-labels-tiles',
+        type: 'raster',
+        source: 'esri-dark-labels',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+    ],
+  },
   satellite: {
     version: 8,
     sources: {
@@ -54,7 +90,28 @@ const OPEN_MAP_STYLES: Record<string, string | maplibregl.StyleSpecification> = 
       },
     ],
   },
-  outdoors: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+  outdoors: {
+    version: 8,
+    sources: {
+      'esri-topo': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+        ],
+        tileSize: 256,
+        attribution: 'Tiles &copy; Esri World Topographic Map',
+      },
+    },
+    layers: [
+      {
+        id: 'esri-topo-tiles',
+        type: 'raster',
+        source: 'esri-topo',
+        minzoom: 0,
+        maxzoom: 20,
+      },
+    ],
+  },
 };
 
 const MAPBOX_VECTOR_STYLES: Record<string, string> = {
@@ -126,6 +183,7 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
         data: geojson as any,
       });
 
+      // 1. Vibrant Polygon Fill Layer
       map.current.addLayer({
         id: fillLayerId,
         type: 'fill',
@@ -142,10 +200,11 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
             '#a855f7',
             '#10b981',
           ],
-          'fill-opacity': 0.55,
+          'fill-opacity': 0.6,
         },
       });
 
+      // 2. High-Visibility Boundary Line Layer
       map.current.addLayer({
         id: lineLayerId,
         type: 'line',
@@ -162,22 +221,24 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
             '#c084fc',
             '#34d399',
           ],
-          'line-width': 2.5,
+          'line-width': 3.5,
+          'line-opacity': 0.95,
         },
       });
 
+      // 3. Highlight Border for Selected Site
       map.current.addLayer({
         id: highlightLayerId,
         type: 'line',
         source: sourceId,
         paint: {
           'line-color': '#facc15',
-          'line-width': 4,
+          'line-width': 5,
         },
         filter: ['==', ['get', 'id'], selectedSiteId || ''],
       });
 
-      // Render visible site name tags on each polygon
+      // 4. Render visible site name badges with click-to-fly zoom
       if (showSiteNames && geojson.features.length > 0) {
         geojson.features.forEach((feat) => {
           const props = feat.properties as any;
@@ -186,11 +247,13 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
           let lngSum = 0;
           let latSum = 0;
           let count = 0;
+          const siteBounds = new maplibregl.LngLatBounds();
 
           const extractCoords = (arr: any[]): void => {
             if (arr.length >= 2 && typeof arr[0] === 'number' && typeof arr[1] === 'number') {
               lngSum += arr[0];
               latSum += arr[1];
+              siteBounds.extend([arr[0], arr[1]]);
               count++;
             } else if (Array.isArray(arr)) {
               arr.forEach(extractCoords);
@@ -218,12 +281,12 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
               : 'border-[#1c353d] hover:border-emerald-400';
 
             markerEl.innerHTML = `
-              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#060c0e]/95 border ${borderColor} backdrop-blur-md shadow-2xl transition-all cursor-pointer hover:scale-105 select-none pointer-events-auto">
-                <span class="w-2 h-2 rounded-full ${dotColor} shrink-0 animate-pulse"></span>
-                <span class="font-bold text-[11px] text-white tracking-tight whitespace-nowrap">${props.name || 'Site'}</span>
+              <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#060c0e]/95 border ${borderColor} backdrop-blur-md shadow-2xl transition-all cursor-pointer hover:scale-110 select-none pointer-events-auto">
+                <span class="w-2.5 h-2.5 rounded-full ${dotColor} shrink-0 animate-pulse"></span>
+                <span class="font-bold text-xs text-white tracking-tight whitespace-nowrap">${props.name || 'Site'}</span>
                 ${
                   props.area_hectares
-                    ? `<span class="text-[10px] text-emerald-300 font-mono font-semibold ml-0.5 whitespace-nowrap">${props.area_hectares.toLocaleString()}ha</span>`
+                    ? `<span class="text-[11px] text-emerald-300 font-mono font-semibold ml-0.5 whitespace-nowrap">${props.area_hectares.toLocaleString()}ha</span>`
                     : ''
                 }
               </div>
@@ -231,6 +294,18 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
 
             markerEl.onclick = (e) => {
               e.stopPropagation();
+              if (map.current) {
+                if (!siteBounds.isEmpty()) {
+                  map.current.fitBounds(siteBounds, { padding: 120, maxZoom: 13, duration: 1500 });
+                } else {
+                  map.current.flyTo({
+                    center: [centerLng, centerLat],
+                    zoom: 11,
+                    duration: 1500,
+                    essential: true,
+                  });
+                }
+              }
               if (onSelectSite) {
                 onSelectSite(props.id);
               }
@@ -416,6 +491,9 @@ export const MapboxViewer: React.FC<MapboxViewerProps> = ({
     if (!map.current) return;
     setMapStyle(styleKey);
     map.current.setStyle(getActiveStyle(styleKey));
+    map.current.once('style.load', () => {
+      renderGeoJsonLayers();
+    });
   };
 
   const handleLocationSearch = async (e: React.FormEvent) => {
