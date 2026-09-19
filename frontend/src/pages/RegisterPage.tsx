@@ -165,6 +165,22 @@ export const RegisterPage: React.FC = () => {
           >
             Create Platform Account
           </Button>
+
+          {/* Instant Demo Fill */}
+          <button
+            type="button"
+            onClick={() => {
+              setName('Pasupula Sai Teja');
+              setEmail('saiteja@darukaa.earth');
+              setPassword('DarukaaPass123!');
+              setConfirmPassword('DarukaaPass123!');
+              showToast('Demo registration details populated!', 'info');
+            }}
+            className="w-full py-2.5 px-3 rounded-xl bg-emerald-950/40 hover:bg-emerald-950/70 border border-emerald-500/30 text-emerald-300 text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-sm group"
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-400 group-hover:scale-110 transition-transform" />
+            <span>Fill Demo User Credentials (Instant Access)</span>
+          </button>
         </form>
 
         {/* Footer Link */}
@@ -173,6 +189,18 @@ export const RegisterPage: React.FC = () => {
           <Link to="/login" className="font-semibold text-emerald-400 hover:text-emerald-300">
             Sign in
           </Link>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-[#1c353d]/40 flex items-center justify-center">
+          <a
+            href="https://github.com/PASUPULASAITEJA/DarukaaEarth"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-mono hover:text-emerald-400 transition-colors"
+          >
+            <span>Engineered by</span>
+            <strong className="text-emerald-400 font-semibold">Pasupula Sai Teja</strong>
+          </a>
         </div>
       </div>
     </div>
