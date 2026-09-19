@@ -146,7 +146,7 @@ def create_submission_document(output_path: str):
     t1_data = [
         ("Project Name", "Darukaa.Earth Geospatial Data Analytics Platform"),
         ("Source Code Repository", "https://github.com/PASUPULASAITEJA/DarukaaEarth"),
-        ("Local Web Dashboard", "http://localhost:5173 (React 18 + Vite + Tailwind CSS)"),
+        ("Live Demo / Web Application", "https://darukaa-earth.netlify.app"),
         ("Backend REST API & Swagger UI", "http://127.0.0.1:8000/api/v1/docs (FastAPI + OpenAPI Spec)"),
         ("Pre-Seeded Admin Credentials", "Email: admin@darukaa.earth  |  Password: AdminPass123!"),
         ("Reviewers Invited / Granted Access", "1. ankita.dasgupta@darukaa.com\n2. harsh.kumar@darukaa.com\n3. utkarsh.gauniyal@darukaa.com\n4. guneet.mutreja@darukaa.com"),
