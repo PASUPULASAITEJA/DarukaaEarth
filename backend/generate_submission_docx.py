@@ -475,23 +475,11 @@ def create_submission_document(output_path: str):
         r_bold.font.bold = True
         p.add_run(desc)
 
-    # Save document with fallback in case one file is currently locked in MS Word
-    try:
-        doc.save(output_path)
-        print(f"[SUCCESS] Formal submission document generated at: {output_path}")
-    except PermissionError:
-        alt_path = output_path.replace(".docx", "_Report.docx")
-        doc.save(alt_path)
-        print(f"[SUCCESS] Primary file was locked in Word. Saved successfully to: {alt_path}")
+    # Save document
+    doc.save(output_path)
+    print(f"[SUCCESS] Formal submission document generated at: {output_path}")
 
 
 if __name__ == "__main__":
-    out = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Darukaa_Earth_Hackathon_Submission_Report.docx"))
+    out = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Darukaa_Earth_Hackathon_Submission.docx"))
     create_submission_document(out)
-    
-    # Also try the standard name
-    std_out = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "Darukaa_Earth_Hackathon_Submission.docx"))
-    try:
-        create_submission_document(std_out)
-    except Exception:
-        pass
